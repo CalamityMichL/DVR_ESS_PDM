@@ -1,0 +1,65 @@
+ /* Copyright Michael Rauter
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 the "License";
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * code derived from:
+ * https://github.com/LDeakin/VkVolume/blob/master/shaders/gradient_map.comp
+ * https://github.com/LDeakin/VkVolume/blob/master/shaders/get_gradient_compute.glsl
+ *
+ */
+
+ #version 460
+
+ #pragma shader_stage(compute)
+
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
+
+#if defined(VOLUME_DATATYPE_UNORM8)
+    layout (binding = 0, r8) uniform image3D volume;
+#elif defined(VOLUME_DATATYPE_UNORM16)
+    layout (binding = 0, r16) uniform image3D volume;
+#endif
+layout (binding = 1, rgba8_snorm) uniform image3D gradient_map;
+
+layout(std140, binding = 0) uniform UBO {
+    float grad_magnitude_modifier;
+};
+
+float getVolumeIntensityValue(ivec3 samplingPos)
+{
+    float voxelValue = imageLoad(volume, samplingPos).x;
+    return voxelValue;
+}
+
+vec3 get_gradient(ivec3 pos, ivec3 dim1) {
+    // Gradient on-the-fly using tetrahedron technique http://iquilezles.org/www/articles/normalsSDF/normalsSDF.htm
+    ivec2 k = ivec2(-1,1);
+    vec3 gradientDir = 0.25 * (
+      k.xyy * getVolumeIntensityValue(clamp(pos + k.xyy, ivec3(0), dim1)).x +
+      k.yyx * getVolumeIntensityValue(clamp(pos + k.yyx, ivec3(0), dim1)).x +
+      k.yxy * getVolumeIntensityValue(clamp(pos + k.yxy, ivec3(0), dim1)).x +
+      k.xxx * getVolumeIntensityValue(clamp(pos + k.xxx, ivec3(0), dim1)).x);
+    return gradientDir;
+}
+
+void main() {
+    const ivec3 dim = imageSize(gradient_map);
+
+    vec3 gradient = get_gradient(ivec3(gl_GlobalInvocationID), dim);
+    float gradient_magnitude = clamp(length(gradient) * grad_magnitude_modifier, 0, 1);
+
+    vec4 gradientMapValue = vec4(normalize(gradient), gradient_magnitude);
+    imageStore(gradient_map, ivec3(gl_GlobalInvocationID), gradientMapValue);
+}

@@ -1,0 +1,64 @@
+/* Copyright Michael Rauter
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 the "License";
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#version 460
+
+#pragma shader_stage(compute)
+
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
+
+#if defined(VOLUME_DATATYPE_UNORM8)
+    layout (binding = 0, r8) uniform image3D volume;
+#elif defined(VOLUME_DATATYPE_UNORM16)
+    layout (binding = 0, r16) uniform image3D volume;
+#endif
+
+layout (binding = 1, rgba8) uniform image3D gradient;
+layout (binding = 2, r8ui) uniform uimage3D occupancy_map_partitioned;
+
+layout(std140, binding = 0) uniform UBO {
+    vec4 block_size;
+    float partition_intensity_min;
+    float partition_intensity_max;
+};
+
+const uint OCCUPIED = 0;
+const uint EMPTY = 1;
+
+void main() {
+  const ivec3 dimDst = imageSize(occupancy_map_partitioned).xyz;
+  if(any(greaterThanEqual(gl_GlobalInvocationID, dimDst.xyz))) return;
+
+  const ivec3 dimSrc = imageSize(volume).xyz;
+
+  const ivec3 start = ivec3(gl_GlobalInvocationID.xyz * block_size.xyz);
+  ivec3 end = ivec3(min(dimSrc, start + block_size.xyz));
+
+  ivec3 pos;
+  for (pos.z = start.z; pos.z < end.z; ++pos.z)
+    for (pos.y = start.y; pos.y < end.y; ++pos.y)
+      for (pos.x = start.x; pos.x < end.x; ++pos.x) {
+        float intensityValue = imageLoad(volume, pos).x;
+
+        if ((intensityValue * 255.0f >= partition_intensity_min-0.5f) && (intensityValue * 255.0f <= partition_intensity_max+0.5f)) { // the offset -0.5, 0.5 is used to prevent floating point inaccuracies
+          imageStore(occupancy_map_partitioned, ivec3(gl_GlobalInvocationID), ivec4(OCCUPIED));
+          return;
+        }
+      }
+
+  imageStore(occupancy_map_partitioned, ivec3(gl_GlobalInvocationID), ivec4(EMPTY));
+}

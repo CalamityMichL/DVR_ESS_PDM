@@ -1,0 +1,62 @@
+/* Copyright Michael Rauter
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 the "License";
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#version 460
+
+#pragma shader_stage(compute)
+
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
+
+layout (binding = 0, r8ui) uniform uimage3D dist_in;
+layout (binding = 1, r8ui) uniform uimage3D dist_out;
+layout (binding = 2, r8ui) uniform uimage3D dist1;
+layout (binding = 3, r8ui) uniform uimage3D dist2;
+layout (binding = 4, r8ui) uniform uimage3D dist3;
+layout (binding = 5, r8ui) uniform uimage3D dist4;
+layout (binding = 6, r8ui) uniform uimage3D dist5;
+layout (binding = 7, r8ui) uniform uimage3D dist6;
+
+layout(std140, binding = 0) uniform UBO {
+    int useDistanceValueFromPreviousPass;
+    int numMapsToUse;
+};
+
+void main() {
+    ivec3 pos = ivec3(gl_GlobalInvocationID.xyz);
+
+    const ivec3 dim = imageSize(dist_out);
+    if(any(greaterThanEqual(pos, dim))) return;
+
+    float minDistValue = 255.0f;
+    if (useDistanceValueFromPreviousPass == 1)
+        minDistValue = imageLoad(dist_in, pos).x;
+
+
+    float distValues[6];
+
+    distValues[0] = imageLoad(dist1, pos).x;
+    distValues[1] = imageLoad(dist2, pos).x;
+    distValues[2] = imageLoad(dist3, pos).x;
+    distValues[3] = imageLoad(dist4, pos).x;
+    distValues[4] = imageLoad(dist5, pos).x;
+    distValues[5] = imageLoad(dist6, pos).x;
+
+    for (int i = 0; i<numMapsToUse; i++)
+        minDistValue = min(minDistValue, distValues[i]);
+
+    imageStore(dist_out, pos, ivec4(minDistValue));
+}
