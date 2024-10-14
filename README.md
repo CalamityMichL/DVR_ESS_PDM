@@ -17,10 +17,14 @@ Please consider citing this work if you use it:
 }
 ```
 
+![image_renderer](docs/volume_renderings.jpg)
+
 ## Features
 
+- extends original work by Deakin and Knackstedt (https://github.com/LDeakin/VkVolume/)
 - GLSL shader for direct volume rendering via raycasting using PDM based ESS
 - GLSL compute shaders for computing partitioned occupancy and distance maps
+- OpenGL-based renderer
 - support for loading volume datasets (SimpleITK supported formats)
 - config.ini file in OML format for specifying many different aspects of the demo, e.g.,
     - speficy volume dataset and intensity transfer function (2nd TF can be specified and can be used to blend between both)
