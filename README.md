@@ -10,7 +10,7 @@ Please consider citing this work if you use it:
  title={Accelerating Transfer Function Update for Distance Map based Volume Rendering},
  booktitle={2024 IEEE Visualization and Visual Analytics (VIS)},
  author={Rauter, Michael and Zimmermann, Lukas and Zeilinger, Markus},
- year=2024,
+ year={2024},
  volume={},
  number={},
  pages={166--170},
