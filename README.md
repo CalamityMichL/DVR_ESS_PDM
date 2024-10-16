@@ -6,14 +6,16 @@ This is an open-source implementation of [Accelerating Transfer Function Update 
 Please consider citing this work if you use it:
 
 ```
-@misc{rauter2024acceleratingtransferfunctionupdate,
-      title={Accelerating Transfer Function Update for Distance Map based Volume Rendering}, 
-      author={Michael Rauter and Lukas Zimmermann and Markus Zeilinger},
-      year={2024},
-      eprint={2407.21552},
-      archivePrefix={arXiv},
-      primaryClass={cs.GR},
-      url={https://arxiv.org/abs/2407.21552}, 
+@inproceedings{rauter2024acceleratingtransferfunctionupdate,
+ title={Accelerating Transfer Function Update for Distance Map based Volume Rendering},
+ booktitle={2024 IEEE Visualization and Visual Analytics (VIS)},
+ author={Rauter, Michael and Zimmermann, Lukas and Zeilinger, Markus},
+ year=2024,
+ volume={},
+ number={},
+ pages={166--170},
+ keywords={Computing methodologies—Computer graphics—Rendering;Theory of computation—Design;Analysis of algorithms—Data structures design and analysis},
+ doi={10.1109/VIS55277.2024.00042}
 }
 ```
 
