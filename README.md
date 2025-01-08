@@ -6,16 +6,21 @@ This is an open-source implementation of [Accelerating Transfer Function Update 
 Please consider citing this work if you use it:
 
 ```
-@inproceedings{rauter2024acceleratingtransferfunctionupdate,
- title={Accelerating Transfer Function Update for Distance Map based Volume Rendering},
- booktitle={2024 IEEE Visualization and Visual Analytics (VIS)},
- author={Rauter, Michael and Zimmermann, Lukas and Zeilinger, Markus},
- year={2024},
- volume={},
- number={},
- pages={166--170},
- keywords={Computing methodologies—Computer graphics—Rendering;Theory of computation—Design;Analysis of algorithms—Data structures design and analysis},
- doi={10.1109/VIS55277.2024.00042}
+@inproceedings{rauter2024,
+	author = { Rauter, Michael and Zimmermann, Lukas and Zeilinger, Markus },
+	booktitle = { 2024 IEEE Visualization and Visual Analytics (VIS) },
+	title = {{ Accelerating Transfer Function Update for Distance Map based Volume Rendering }},
+	year = {2024},
+	volume = {},
+	ISSN = {},
+	pages = {171-175},
+	abstract = { Direct volume rendering using ray-casting is widely used in practice. By using GPUs and applying acceleration techniques as empty space skipping, high frame rates are possible on modern hardware. This enables performance-critical use-cases such as virtual reality volume rendering. The currently fastest known technique uses volumetric distance maps to skip empty sections of the volume during ray-casting but requires the distance map to be updated per transfer function change. In this paper, we demonstrate a technique for subdividing the volume intensity range into partitions and deriving what we call partitioned distance maps. These can be used to accelerate the distance map computation for a newly changed transfer function by a factor up to 30. This allows the currently fastest known empty space skipping approach to be used while maintaining high frame rates even when the transfer function is changed frequently. },
+	keywords = {Visual analytics;Transfer functions;Graphics processing units;Virtual reality;Rendering (computer graphics);Hardware},
+	doi = {10.1109/VIS55277.2024.00042},
+	url = {https://doi.ieeecomputersociety.org/10.1109/VIS55277.2024.00042},
+	publisher = {IEEE Computer Society},
+	address = {Los Alamitos, CA, USA},
+	month =Oct
 }
 ```
 
